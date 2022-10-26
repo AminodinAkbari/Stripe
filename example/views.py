@@ -8,8 +8,8 @@ from .models import Payment
 # Create your views here.
 stripe.api_key = settings.STRPIE_PRIVATE_KEY
 def index(request):
-	if request.method == "POST":
-		checkout_session = stripe.checkout.Session.create(
+    if request.method == "POST":
+        checkout_session = stripe.checkout.Session.create(
             line_items=[
                 {
                     # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
@@ -21,18 +21,18 @@ def index(request):
             success_url=request.build_absolute_uri(reverse('success')),
             cancel_url=request.build_absolute_uri(reverse('cancel')),
         )
-		Payment.objects.create(user=checkout_session.id)
+        request.session['json']=checkout_session
+        print(checkout_session)
 
-		return redirect(checkout_session.url)
-	return render(request , 'index.html' , {})
+        return redirect(checkout_session.url)
+    return render(request , 'index.html' , )
 
 def cancel(request):
-	return render(request , 'cancel.html' , )
+    return render(request , 'cancel.html' , )
 
 def success(request):
-	return render(request , 'success.html' , )
-
-# def json_test(request):
-# 	from . import test_json as J
-# 	context = {'id' : J.id}
-# 	return render(request , 'json.html' , context)
+    try:
+        Payment.objects.get(user=request.session['json']['id'])
+    except:
+        Payment.objects.create(user=request.session['json']['id'])
+    return render(request , 'success.html' , {'id' : request.session['json']['id']})

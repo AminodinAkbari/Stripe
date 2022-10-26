@@ -19,7 +19,7 @@ from example.views import index , success , cancel
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', index),
+    path('', index , name='Home'),
     path('success' , success , name='success'),
     path('cancel' , cancel , name='cancel'),
     # path('json' , json_test , name='json'),
